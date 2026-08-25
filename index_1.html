@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matthew Wang — Photographs</title>
+<meta name="description" content="Street photographs by Junxian (Matthew) Wang.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;1,6..72,300&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --paper:#fbfbfa;
+  --ink:#141413;
+  --muted:#8f8f88;
+  --hair:#e2e2dd;
+  --mark:#b8332a;              /* used almost nowhere on purpose */
+  --gut:clamp(20px,4vw,64px);
+  --sans:"Archivo",system-ui,-apple-system,sans-serif;
+  --serif:"Newsreader",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-weight:400;font-size:15px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:1.5px solid var(--ink);outline-offset:3px}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:var(--gut);top:12px;z-index:99;background:var(--paper);padding:8px 12px}
+
+.meta{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- nav ---------- */
+.nav{
+  position:sticky;top:0;z-index:40;background:var(--paper);
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:24px;padding:22px var(--gut) 18px;
+}
+.nav-name{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+.nav-links{display:flex;align-items:baseline;gap:26px}
+.nav-links a,.nav-links button{
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  padding-bottom:2px;border-bottom:1px solid transparent;transition:color .2s,border-color .2s;
+}
+.nav-links a:hover,.nav-links button:hover{color:var(--ink)}
+.nav-links a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--ink)}
+.nav-burger{display:none}
+
+/* ---------- work index ---------- */
+.work{padding:4px var(--gut) 40px;max-width:1480px}
+/* image left, text in the margin beside it — alternating sides down the page */
+.work-item{
+  display:grid;grid-template-columns:minmax(0,1.9fr) minmax(0,1fr);
+  gap:clamp(18px,3vw,46px);align-items:start;
+  margin-bottom:clamp(56px,7.5vw,116px);
+}
+.work-item:nth-child(even) .work-figure{grid-column:2;grid-row:1}
+.work-item:nth-child(even) .work-cap{grid-column:1;grid-row:1;text-align:right}
+
+/* fixed frame so rotating photos of different shapes never jump the layout */
+.work-figure{position:relative;aspect-ratio:3/2;overflow:hidden;background:#eeeeea}
+.work-figure .slide{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;transition:opacity 1s ease,transform 1.4s cubic-bezier(.2,.7,.2,1);
+}
+.work-figure .slide.on{opacity:1}
+.work-item:hover .work-figure .slide.on{transform:scale(1.02)}
+.work-figure .ph{position:absolute;inset:0;aspect-ratio:auto}
+
+/* little frame counter, bottom-right of the frame */
+.dots{position:absolute;right:10px;bottom:10px;display:flex;gap:5px;z-index:2}
+.dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.55);
+  box-shadow:0 0 0 .5px rgba(0,0,0,.18);transition:background .4s}
+.dot.on{background:#fff}
+
+.work-cap{padding-top:6px;border-top:1px solid var(--ink)}
+.work-cap h2{
+  font-family:var(--serif);font-weight:300;font-size:clamp(24px,2.6vw,36px);
+  line-height:1.08;margin:14px 0 10px;letter-spacing:-.01em;
+}
+.work-item:hover .work-cap h2{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
+.work-cap .meta{display:block;margin-bottom:16px}
+.work-cap .note{
+  font-family:var(--serif);font-size:15px;line-height:1.55;color:#57574f;
+  margin:0 0 14px;max-width:34ch;
+}
+.work-item:nth-child(even) .work-cap .note{margin-left:auto}
+.work-cap .go{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);transition:color .2s}
+.work-item:hover .work-cap .go{color:var(--ink)}
+
+/* ---------- project page ---------- */
+.proj-head{padding:clamp(30px,7vw,80px) var(--gut) clamp(30px,5vw,60px);max-width:1500px}
+.proj-head h1{
+  font-family:var(--serif);font-weight:300;font-size:clamp(34px,6.6vw,86px);
+  line-height:1;margin:0 0 18px;letter-spacing:-.015em;
+}
+.proj-head .sub{
+  font-family:"Hiragino Mincho ProN","Yu Mincho","Songti SC",serif;
+  font-weight:400;font-size:clamp(15px,1.5vw,19px);letter-spacing:.22em;
+  color:var(--muted);margin:-8px 0 20px;
+}
+.proj-head .meta{margin:0 0 26px}
+.proj-head p.lede{
+  font-family:var(--serif);font-size:clamp(17px,1.5vw,21px);line-height:1.55;
+  max-width:46ch;margin:0;color:#3a3a37;
+}
+
+/* magazine rows */
+.rows{padding:0 var(--gut) 20px}
+.row{display:flex;gap:clamp(14px,2.4vw,34px);align-items:flex-start;margin-bottom:clamp(28px,5vw,80px)}
+.row figure{margin:0;flex:0 0 auto;background:#eeeeea;cursor:zoom-in}
+.row img{width:100%;transition:opacity .35s}
+.row figure:hover img{opacity:.86}
+.r-full  figure{flex-basis:100%}
+.r-wide  figure{flex-basis:78%}
+.r-right {justify-content:flex-end}
+.r-right figure{flex-basis:62%}
+.r-pair  figure:first-child{flex-basis:56%}
+.r-pair  figure:last-child {flex-basis:34%;margin-top:9vw}
+.r-pair2 figure:first-child{flex-basis:36%;margin-top:6vw}
+.r-pair2 figure:last-child {flex-basis:56%}
+.cap{margin:8px 0 0;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted)}
+
+.proj-foot{display:flex;justify-content:space-between;gap:20px;
+  padding:clamp(30px,5vw,70px) var(--gut);border-top:1px solid var(--hair);margin:0 var(--gut)}
+
+/* ---------- about ---------- */
+.about{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,5vw,72px);
+  padding:clamp(30px,6vw,80px) var(--gut) 60px;align-items:start}
+.about-img{background:#eeeeea}
+.about-text p{font-family:var(--serif);font-size:clamp(16px,1.4vw,19px);line-height:1.6;max-width:46ch;margin:0 0 1.1em}
+.cv{margin-top:clamp(30px,5vw,64px)}
+.cv h3{margin:0 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:400;color:var(--muted)}
+.cv ul{list-style:none;margin:0 0 34px;padding:0;border-top:1px solid var(--hair)}
+.cv li{padding:9px 0;border-bottom:1px solid var(--hair);font-size:13.5px;color:#3a3a37}
+
+/* ---------- contact ---------- */
+.contact{padding:clamp(60px,14vw,180px) var(--gut)}
+.contact a.big{
+  font-family:var(--serif);font-weight:300;font-size:clamp(26px,5vw,64px);
+  display:inline-block;margin-bottom:16px;border-bottom:1px solid var(--hair);
+}
+.contact a.big:hover{border-bottom-color:var(--ink)}
+
+/* ---------- footer ---------- */
+.foot{padding:40px var(--gut) 60px;border-top:1px solid var(--hair);margin-top:60px}
+.foot p{margin:0;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted)}
+
+/* ---------- missing-photo placeholder ---------- */
+.ph{display:flex;align-items:center;justify-content:center;aspect-ratio:3/2;
+  background:repeating-linear-gradient(45deg,#f0f0ec 0 10px,#eaeae5 10px 20px);
+  font-family:var(--mono);font-size:10.5px;color:#a4a49c;text-align:center;padding:10px;word-break:break-all}
+
+/* ---------- lightbox ---------- */
+.lb{position:fixed;inset:0;z-index:80;background:rgba(251,251,250,.985);
+  display:flex;align-items:center;justify-content:center;padding:clamp(30px,6vw,80px)}
+.lb[hidden]{display:none}          /* must come after .lb — the hidden attribute alone loses to a class rule */
+.lb img{max-width:100%;max-height:82vh;width:auto;object-fit:contain}
+.lb-close{position:absolute;top:14px;right:20px;font-size:30px;line-height:1;color:var(--muted);
+  z-index:3;padding:4px 10px}
+.lb-close:hover{color:var(--ink)}
+/* start below the close button so the nav hit areas can't swallow it */
+.lb-nav{position:absolute;top:58px;bottom:0;width:22%;font-size:34px;color:var(--muted);
+  opacity:.35;transition:opacity .2s;z-index:2}
+.lb-nav:hover{opacity:1}
+.lb-prev{left:0}.lb-next{right:0}
+.lb-count{position:absolute;bottom:22px;left:0;right:0;text-align:center;margin:0;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted)}
+
+/* ---------- mobile ---------- */
+@media (max-width:820px){
+  .nav{align-items:center}
+  .nav-burger{display:flex;flex-direction:column;gap:5px;width:24px}
+  .nav-burger span{height:1px;background:var(--ink);width:100%}
+  .nav-links{
+    position:fixed;inset:64px 0 auto 0;background:var(--paper);flex-direction:column;
+    align-items:flex-start;gap:20px;padding:24px var(--gut) 32px;border-bottom:1px solid var(--hair);
+    display:none;
+  }
+  .nav-links.open{display:flex}
+  .nav-links a,.nav-links button{font-size:13px}
+  .work-item{grid-template-columns:1fr;gap:14px}
+  .work-item:nth-child(even) .work-figure{grid-column:1;grid-row:1}
+  .work-item:nth-child(even) .work-cap{grid-column:1;grid-row:2;text-align:left}
+  .work-item:nth-child(even) .work-cap .note{margin-left:0}
+  .work-cap .note{max-width:none}
+  .row{display:block}
+  .row figure{margin-bottom:22px !important;margin-top:0 !important;width:100% !important}
+  .about{grid-template-columns:1fr}
+  .lb-nav{width:30%}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+  .work-item:hover .work-figure img{transform:none}
+}
+
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <a class="nav-name" href="#/work" id="navName"></a>
+
+  <button class="nav-burger" id="burger" type="button" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span>
+  </button>
+
+  <nav class="nav-links" id="navLinks">
+    <a href="#/work"  data-nav="work"></a>
+    <a href="#/about" data-nav="about"></a>
+    <a href="#/contact" data-nav="contact"></a>
+    <a id="navIg" target="_blank" rel="noopener">Instagram</a>
+  </nav>
+</header>
+
+<main id="main"></main>
+
+<footer class="foot"><p id="footText"></p></footer>
+
+<div class="lb" id="lb" hidden>
+  <button class="lb-close" id="lbClose" type="button" aria-label="Close">&times;</button>
+  <button class="lb-nav lb-prev" id="lbPrev" type="button" aria-label="Previous">&#8249;</button>
+  <button class="lb-nav lb-next" id="lbNext" type="button" aria-label="Next">&#8250;</button>
+  <img id="lbImg" alt="">
+  <p class="lb-count" id="lbCount"></p>
+</div>
+
+<script>
+/* ===== EDIT EVERYTHING IN THIS BLOCK ===== */
+/* ============================================================
+   THE ONLY FILE YOU EDIT — 你唯一需要改的文件
+
+   1. Photos go in images/. Only filenames here.
+      照片放进 images/ 文件夹，这里只写文件名。
+   2. No spaces or Chinese in filenames: chengdu-01.jpg
+      文件名不要有空格和中文。
+   3. Keep the commas. Straight quotes " " only.
+      别删行尾逗号，引号用英文 " "。
+   ============================================================ */
+
+const SITE = {
+  name:      "Matthew Wang",                          // top-left of every page
+  email:     "Matthew_03@berkeley.edu",
+  instagram: "https://www.instagram.com/photos_by_matthew_/",
+  footer:    "All photographs © 2026 Matthew Wang",
+
+  // ABOUT page — each | starts a new paragraph / 每个 | 分一段
+  bio: "Junxian (Matthew) Wang is a street and documentary photographer based in Berkeley, California.|Originally from China, he has been photographing since the end of 2023, capturing everyday life, culture and emotion through candid imagery, and working mainly in diverse urban settings across the world. His work highlights the beauty in ordinary moments and reflects local identities. Currently building a portfolio for exhibition and publication.|He is a graduate student in photojournalism at the UC Berkeley Graduate School of Journalism.",
+
+  aboutImage: "about.jpg",                            // the photo on the About page
+
+  // Delete a whole { } block if you have nothing for it yet
+  cv: [
+    {
+      heading: "Exhibitions",
+      items: [
+        "2026: ImageNation International Photo Exhibition, New York — juried show",
+        "2026: International Street Photography Exhibition & Competition — juried show",
+        "2025: Tech-Wit: The 18th Shanghai Youth Art Exhibition — juried show",
+        "2025: Big Picture Colorado — juried show",
+        "2025: Month of Photography Denver, @1101 — juried show",
+        "2024: Colorado Photographic Arts Center, Emerging Vision: Biennial Student Show — juried show",
+        "Leica Fotografie International digital gallery — 5 Leica Mastershot selections",
+        "Leica Fotografie International digital gallery — 4 Leica selections"
+      ]
+    },
+    {
+      heading: "Awards",
+      items: [
+        "2026: LensCulture Street Photography Awards — Editor’s Pick",
+        "2025: LensCulture Street Photography Awards — Editor’s Pick",
+        "2025: All About Photo Magazine #47 Shadows — Particular Merit Mention, ranked 13th of 1,000+ entries",
+        "2025: All About Photo Magazine, Best Rising Photographers (June)",
+        "2025: DES_Photomag, Top Best Collection (March)"
+      ]
+    }
+  ]
+};
+
+/* ============================================================
+   PROJECTS — copy a whole { } block to add another
+   ============================================================ */
+
+const SERIES = [
+
+  {
+    id: "lingering-odyssey",
+    title: "Lingering Odyssey",
+    place: "On the Road",
+    year:  "2024—",
+    cover: "odyssey-01.jpg",                 // Work 页显示的封面
+    note:  "An ongoing documentary across Cuba, Egypt and Mexico.",
+    text:  "The Lingering Odyssey is a documentary project across Cuba, Egypt and Mexico, made between 2024 and 2025. It is still ongoing, and will extend to more places in the world, particularly in Latin America and Africa.",
+    photos: [
+      "odyssey-01.jpg",
+      "odyssey-02.jpg",
+      "odyssey-03.jpg",
+      "odyssey-04.jpg",
+      "odyssey-05.jpg",
+      "odyssey-06.jpg",
+      "odyssey-07.jpg",
+      "odyssey-08.jpg"
+      // 不够就继续加行（记得上一行末尾补逗号），多了就删行
+    ]
+  },
+
+  {
+    id: "documentary",
+    title: "Documentary",
+    place: "Denver, Colorado",
+    year:  "2025",
+    cover: "doc-01.jpg",
+    note:  "Three major protests in Denver, Colorado, first half of 2025.",
+    text:  "A documentary project focusing on three major protests in Denver, Colorado, in the first half of 2025.",
+    photos: [
+      "doc-01.jpg",
+      "doc-02.jpg",
+      "doc-03.jpg",
+      "doc-04.jpg",
+      "doc-05.jpg",
+      "doc-06.jpg",
+      "doc-07.jpg",
+      "doc-08.jpg"
+    ]
+  },
+
+  {
+    id: "tokyo",
+    title: "Tokyo People Observation",
+    subtitle: "東京人間観察",          // optional — sits under the title on the project page
+    place: "Tokyo, Japan",
+    year:  "2024—",
+    cover: "tokyo-01.jpg",
+    note:  "Urban life in the Tokyo metropolitan area — human landscape and cultural activity.",
+    text:  "People Observation in Tokyo is a documentary project started in 2024, made only in the Tokyo metropolitan area. It focuses on the urban lives of people in Tokyo, including the human landscape and cultural activities.",
+    photos: [
+      "tokyo-01.jpg",
+      "tokyo-02.jpg",
+      "tokyo-03.jpg",
+      "tokyo-04.jpg",
+      "tokyo-05.jpg",
+      "tokyo-06.jpg",
+      "tokyo-07.jpg",
+      "tokyo-08.jpg"
+    ]
+  }
+
+];
+
+/* ===== END OF EDITABLE BLOCK — site logic below, leave it alone ===== */
+
+/* 网站逻辑。除非要改功能，否则不用动这个文件。
+   Site logic. You shouldn't need to touch this file. */
+
+(function () {
+  "use strict";
+
+  var IMG = "images/";
+  var UI = {
+    work: "Work", about: "About", contact: "Contact",
+    back: "← All work", next: "Next project →"
+  };
+
+  var main    = document.getElementById("main");
+  var navName = document.getElementById("navName");
+  var navIg   = document.getElementById("navIg");
+  var footTxt = document.getElementById("footText");
+  var links   = document.getElementById("navLinks");
+  var burger  = document.getElementById("burger");
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  function norm(p) { return typeof p === "string" ? { file: p, caption: "" } : p; }
+
+  /* an <img> that degrades to a labelled placeholder if the file isn't there yet */
+  function pic(file, alt, cls) {
+    return '<img src="' + IMG + esc(file) + '" alt="' + esc(alt || "") + '" loading="lazy" ' +
+           (cls ? 'class="' + cls + '" ' : "") +
+           'onerror="this.outerHTML=\'<div class=&quot;ph&quot;>images/' + esc(file) + '</div>\'">';
+  }
+
+  /* ---------- chrome ---------- */
+  function chrome() {
+    navName.textContent = SITE.name;
+    footTxt.textContent = SITE.footer;
+    navIg.href = SITE.instagram;
+    ["work", "about", "contact"].forEach(function (k) {
+      document.querySelector('[data-nav="' + k + '"]').textContent = UI[k];
+    });
+  }
+
+  /* ---------- pages ---------- */
+  var MAX_SLIDES = 6;   /* how many photos each cover rotates through */
+
+  /* one slide of a cover carousel — falls back to a labelled placeholder */
+  function slide(file, alt, first) {
+    var cls = "slide" + (first ? " on" : "");
+    return '<img class="' + cls + '" src="' + IMG + esc(file) + '" alt="' + esc(alt) + '" ' +
+           (first ? '' : 'loading="lazy" ') +
+           'onerror="this.outerHTML=\'<div class=&quot;ph ' + cls + '&quot;>images/' + esc(file) + '</div>\'">';
+  }
+
+  function pageWork() {
+    return '<div class="work">' + SERIES.map(function (s) {
+      var files = (s.photos || []).map(norm).map(function (p) { return p.file; });
+      if (s.cover) {                                   /* cover leads, no duplicate */
+        files = [s.cover].concat(files.filter(function (f) { return f !== s.cover; }));
+      }
+      files = files.slice(0, MAX_SLIDES);
+
+      var slides = files.map(function (f, i) { return slide(f, s.title, i === 0); }).join("");
+      var dots = files.length > 1
+        ? '<div class="dots">' + files.map(function (_, i) {
+            return '<span class="dot' + (i === 0 ? " on" : "") + '"></span>';
+          }).join("") + '</div>'
+        : "";
+
+      /* side note: the project's own `note`, else the first sentence of `text` */
+      var note = s.note || ((s.text || "").split(". ")[0] || "");
+
+      return '<a class="work-item" href="#/work/' + esc(s.id) + '">' +
+               '<div class="work-figure">' + slides + dots + '</div>' +
+               '<div class="work-cap">' +
+                 '<h2>' + esc(s.title) + '</h2>' +
+                 '<span class="meta">' + esc(s.place) + ' &nbsp;\u00b7&nbsp; ' + esc(s.year || "") + '</span>' +
+                 (note ? '<p class="note">' + esc(note) + '</p>' : "") +
+                 '<span class="go">View project \u2192</span>' +
+               '</div>' +
+             '</a>';
+    }).join("") + '</div>';
+  }
+
+  /* ---------- cover carousels ---------- */
+  var timers = [];
+  function stopCarousels() { timers.forEach(clearInterval); timers.forEach(clearTimeout); timers = []; }
+
+  function startCarousels() {
+    stopCarousels();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    Array.prototype.forEach.call(document.querySelectorAll(".work-figure"), function (fig, n) {
+      if (fig.querySelectorAll(".slide").length < 2) return;
+      var i = 0;
+      /* stagger so the three covers never flip in unison */
+      timers.push(setTimeout(function () {
+        timers.push(setInterval(function () {
+          /* re-query each tick: a failed image is swapped for a placeholder node */
+          var slides = fig.querySelectorAll(".slide");
+          var dots = fig.querySelectorAll(".dot");
+          if (slides.length < 2 || document.hidden) return;
+          slides[i].classList.remove("on");
+          if (dots[i]) dots[i].classList.remove("on");
+          i = (i + 1) % slides.length;
+          slides[i].classList.add("on");
+          if (dots[i]) dots[i].classList.add("on");
+        }, 4200));
+      }, n * 1400));
+    });
+  }
+
+  /* magazine rhythm: how many photos per row, and which layout class */
+  var PATTERN = [
+    { n: 1, c: "r-full" },
+    { n: 2, c: "r-pair" },
+    { n: 1, c: "r-right" },
+    { n: 2, c: "r-pair2" },
+    { n: 1, c: "r-wide" }
+  ];
+
+  function pageProject(id) {
+    var i = SERIES.findIndex(function (s) { return s.id === id; });
+    if (i < 0) return pageWork();
+    var s = SERIES[i];
+    var next = SERIES[(i + 1) % SERIES.length];
+    var photos = (s.photos || []).map(norm);
+
+    var rows = "", k = 0, p = 0, idx = 0;
+    while (k < photos.length) {
+      var pat = PATTERN[p % PATTERN.length];
+      var slice = photos.slice(k, k + pat.n);
+      rows += '<div class="row ' + pat.c + '">' + slice.map(function (ph) {
+        var here = idx++;
+        return '<figure data-i="' + here + '">' + pic(ph.file, s.title) +
+               (ph.caption ? '<figcaption class="cap">' + esc(ph.caption) + '</figcaption>' : "") +
+               '</figure>';
+      }).join("") + '</div>';
+      k += pat.n; p++;
+    }
+
+    return '<article data-project="' + esc(s.id) + '">' +
+      '<header class="proj-head">' +
+        '<h1>' + esc(s.title) + '</h1>' +
+        (s.subtitle ? '<p class="sub">' + esc(s.subtitle) + '</p>' : "") +
+        '<p class="meta">' + esc(s.place) + ' &nbsp;·&nbsp; ' + esc(s.year || "") +
+          ' &nbsp;·&nbsp; ' + photos.length + ' photographs' + '</p>' +
+        (s.text ? '<p class="lede">' + esc(s.text) + '</p>' : "") +
+      '</header>' +
+      '<div class="rows">' + rows + '</div>' +
+      '<div class="proj-foot">' +
+        '<a class="meta" href="#/work">' + esc(UI.back) + '</a>' +
+        '<a class="meta" href="#/work/' + esc(next.id) + '">' + esc(UI.next) + '</a>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function pageAbout() {
+    var paras = SITE.bio.split("|").map(function (x) { return '<p>' + esc(x) + '</p>'; }).join("");
+    var cv = (SITE.cv || []).map(function (b) {
+      return '<h3>' + esc(b.heading) + '</h3><ul>' +
+             b.items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>';
+    }).join("");
+    return '<div class="about">' +
+             '<div class="about-img">' + pic(SITE.aboutImage || "about.jpg", SITE.name) + '</div>' +
+             '<div class="about-text">' + paras +
+               '<p class="meta" style="margin-top:26px">' +
+                 '<a href="mailto:' + esc(SITE.email) + '">' + esc(SITE.email) + '</a></p>' +
+               '<div class="cv">' + cv + '</div>' +
+             '</div>' +
+           '</div>';
+  }
+
+  function pageContact() {
+    return '<div class="contact">' +
+      '<a class="big" href="mailto:' + esc(SITE.email) + '">' + esc(SITE.email) + '</a><br>' +
+      '<a class="big" href="' + esc(SITE.instagram) + '" target="_blank" rel="noopener">Instagram</a>' +
+    '</div>';
+  }
+
+  /* ---------- router ---------- */
+  function route() {
+    var h = location.hash.replace(/^#\/?/, "");
+    var parts = h.split("/").filter(Boolean);
+    var page = parts[0] || "work";
+
+    stopCarousels();
+    if (page === "about")        main.innerHTML = pageAbout();
+    else if (page === "contact") main.innerHTML = pageContact();
+    else if (page === "work" && parts[1]) main.innerHTML = pageProject(parts[1]);
+    else { page = "work"; main.innerHTML = pageWork(); }
+
+    ["work", "about", "contact"].forEach(function (k) {
+      var a = document.querySelector('[data-nav="' + k + '"]');
+      if (k === page) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+    if (page === "work" && !parts[1]) startCarousels();
+    links.classList.remove("open");
+    burger.setAttribute("aria-expanded", "false");
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- lightbox ---------- */
+  var lb = document.getElementById("lb"),
+      lbImg = document.getElementById("lbImg"),
+      lbCount = document.getElementById("lbCount"),
+      cur = 0, list = [];
+
+  function openLb(project, i) {
+    var s = SERIES.find(function (x) { return x.id === project; });
+    if (!s) return;
+    list = s.photos.map(norm); cur = i; show();
+    lb.hidden = false; document.body.style.overflow = "hidden";
+  }
+  function show() {
+    if (!list.length) return;
+    cur = (cur + list.length) % list.length;
+    lbImg.src = IMG + list[cur].file;
+    lbCount.textContent = (cur + 1) + " / " + list.length;
+  }
+  function closeLb() { lb.hidden = true; lbImg.removeAttribute("src"); document.body.style.overflow = ""; }
+
+  document.addEventListener("click", function (e) {
+    var fig = e.target.closest(".rows figure");
+    if (fig) {
+      var art = fig.closest("[data-project]");
+      if (art) openLb(art.getAttribute("data-project"), +fig.getAttribute("data-i"));
+      return;
+    }
+    if (lb.hidden) return;
+    var hit = e.target.closest ? e.target.closest("button") : null;
+    var id = (hit && hit.id) || e.target.id;
+    if (id === "lbClose" || e.target === lb) { closeLb(); return; }
+    if (id === "lbPrev") { cur--; show(); }
+    if (id === "lbNext") { cur++; show(); }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (lb.hidden) return;
+    if (e.key === "Escape") closeLb();
+    if (e.key === "ArrowLeft")  { cur--; show(); }
+    if (e.key === "ArrowRight") { cur++; show(); }
+  });
+
+  /* ---------- controls ---------- */
+  burger.addEventListener("click", function () {
+    var open = links.classList.toggle("open");
+    burger.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
+  window.addEventListener("hashchange", route);
+  lb.hidden = true;
+  chrome();
+  route();
+})();
+
+</script>
+</body>
+</html>
