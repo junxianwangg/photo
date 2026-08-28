@@ -265,6 +265,7 @@ const SITE = {
     {
       heading: "Exhibitions",
       items: [
+        "2026: Leica Photo Festival Shanghai",
         "2026: ImageNation International Photo Exhibition, New York — juried show",
         "2026: International Street Photography Exhibition & Competition — juried show",
         "2025: Tech-Wit: The 18th Shanghai Youth Art Exhibition — juried show",
@@ -387,10 +388,31 @@ const SERIES = [
   function norm(p) { return typeof p === "string" ? { file: p, caption: "" } : p; }
 
   /* an <img> that degrades to a labelled placeholder if the file isn't there yet */
+  /* A missing image is nearly always the wrong extension or the wrong case:
+     GitHub is case-sensitive, macOS is not. So on failure, try the other
+     spellings before giving up and showing a labelled placeholder. */
+  var EXTS = [".jpg", ".JPG", ".jpeg", ".JPEG", ".png", ".PNG", ".webp", ".WEBP"];
+
+  window.imgFail = function (el) {
+    var file = el.getAttribute("data-file") || "";
+    var stem = file.replace(/\.[^.]+$/, "");
+    var orig = (file.match(/\.[^.]+$/) || [""])[0];
+    var alts = EXTS.filter(function (x) { return x !== orig; });
+    var n = +(el.getAttribute("data-try") || 0);
+
+    if (n < alts.length) {
+      el.setAttribute("data-try", n + 1);
+      el.src = IMG + stem + alts[n];
+      return;
+    }
+    var cls = el.className ? " " + el.className : "";
+    el.outerHTML = '<div class="ph' + cls + '">images/' + file + '</div>';
+  };
+
   function pic(file, alt, cls) {
     return '<img src="' + IMG + esc(file) + '" alt="' + esc(alt || "") + '" loading="lazy" ' +
-           (cls ? 'class="' + cls + '" ' : "") +
-           'onerror="this.outerHTML=\'<div class=&quot;ph&quot;>images/' + esc(file) + '</div>\'">';
+           'data-file="' + esc(file) + '" onerror="imgFail(this)" ' +
+           (cls ? 'class="' + cls + '" ' : "") + '>';
   }
 
   /* ---------- chrome ---------- */
@@ -411,7 +433,7 @@ const SERIES = [
     var cls = "slide" + (first ? " on" : "");
     return '<img class="' + cls + '" src="' + IMG + esc(file) + '" alt="' + esc(alt) + '" ' +
            (first ? '' : 'loading="lazy" ') +
-           'onerror="this.outerHTML=\'<div class=&quot;ph ' + cls + '&quot;>images/' + esc(file) + '</div>\'">';
+           'data-file="' + esc(file) + '" onerror="imgFail(this)">';
   }
 
   function pageWork() {
