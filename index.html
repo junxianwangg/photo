@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Matthew Wang — Photographs</title>
+<title>Junxian Wang — Photographs</title>
 <meta name="description" content="Street photographs by Junxian (Matthew) Wang.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -210,14 +210,15 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav">
-  <a class="nav-name" href="#/work" id="navName"></a>
+  <a class="nav-name" href="#/project" id="navName"></a>
 
   <button class="nav-burger" id="burger" type="button" aria-label="Menu" aria-expanded="false">
     <span></span><span></span>
   </button>
 
   <nav class="nav-links" id="navLinks">
-    <a href="#/work"  data-nav="work"></a>
+    <a href="#/project" data-nav="project"></a>
+    <a href="#/journalism" data-nav="journalism"></a>
     <a href="#/about" data-nav="about"></a>
     <a href="#/contact" data-nav="contact"></a>
     <a id="navIg" target="_blank" rel="noopener">Instagram</a>
@@ -250,10 +251,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
    ============================================================ */
 
 const SITE = {
-  name:      "Matthew Wang",                          // top-left of every page
+  name:      "Junxian Wang",                          // top-left of every page
   email:     "Matthew_03@berkeley.edu",
   instagram: "https://www.instagram.com/photos_by_matthew_/",
-  footer:    "All photographs © 2026 Matthew Wang",
+  footer:    "All photographs © 2026 Junxian Wang",
 
   // ABOUT page — each | starts a new paragraph / 每个 | 分一段
   bio: "Junxian (Matthew) Wang is a street and documentary photographer based in Berkeley, California.|Originally from China, he has been photographing since the end of 2023, capturing everyday life, culture and emotion through candid imagery, and working mainly in diverse urban settings across the world. His work highlights the beauty in ordinary moments and reflects local identities. Currently building a portfolio for exhibition and publication.|He is a graduate student in photojournalism at the UC Berkeley Graduate School of Journalism.",
@@ -318,26 +319,6 @@ const SERIES = [
   },
 
   {
-    id: "documentary",
-    title: "Documentary",
-    place: "Denver, Colorado",
-    year:  "2025",
-    cover: "doc-01.jpg",
-    note:  "Three major protests in Denver, Colorado, first half of 2025.",
-    text:  "A documentary project focusing on three major protests in Denver, Colorado, in the first half of 2025.",
-    photos: [
-      "doc-01.jpg",
-      "doc-02.jpg",
-      "doc-03.jpg",
-      "doc-04.jpg",
-      "doc-05.jpg",
-      "doc-06.jpg",
-      "doc-07.jpg",
-      "doc-08.jpg"
-    ]
-  },
-
-  {
     id: "tokyo",
     title: "Tokyo People Observation",
     subtitle: "東京人間観察",          // optional — sits under the title on the project page
@@ -360,6 +341,71 @@ const SERIES = [
 
 ];
 
+/* ============================================================
+   JOURNALISM — same shape as PROJECTS above.
+   Copy a whole { } block to add another story.
+   ============================================================ */
+
+const JOURNALISM = [
+
+  {
+    id: "denver-protest",
+    title: "Denver Protests",
+    place: "Denver, Colorado",
+    year:  "2025",
+    cover: "denver-01.jpg",
+    note:  "Two major protests in Denver, Colorado, first half of 2025.",
+    text:  "A documentary project focusing on two major protests in Denver, Colorado, in the first half of 2025.",
+    photos: [
+      "denver-01.jpg",
+      "denver-02.jpg",
+      "denver-03.jpg",
+      "denver-04.jpg",
+      "denver-05.jpg",
+      "denver-06.jpg",
+      "denver-07.jpg",
+      "denver-08.jpg"
+    ]
+  },
+
+  {
+    id: "cal-football",
+    title: "Cal Football Game",
+    place: "Berkeley, CA",
+    year:  "September 19, 2026",
+    cover: "cal-01.jpg",
+    note:  "",                               // ← 首页侧栏那一句，短
+    text:  "",                               // ← 内页开头那段，两三句
+    photos: [
+      "cal-01.jpg",
+      "cal-02.jpg",
+      "cal-03.jpg",
+      "cal-04.jpg",
+      "cal-05.jpg",
+      "cal-06.jpg"
+    ]
+  },
+
+  {
+    id: "silent-disco",
+    title: "Silent Disco",
+    place: "Rochester, NY",
+    year:  "February 1, 2025",
+    cover: "disco-01.jpg",
+    note:  "",
+    text:  "",
+    photos: [
+      "disco-01.jpg",
+      "disco-02.jpg",
+      "disco-03.jpg",
+      "disco-04.jpg",
+      "disco-05.jpg",
+      "disco-06.jpg"
+    ]
+  }
+
+];
+
 /* ===== END OF EDITABLE BLOCK — site logic below, leave it alone ===== */
 
 /* 网站逻辑。除非要改功能，否则不用动这个文件。
@@ -370,8 +416,7 @@ const SERIES = [
 
   var IMG = "images/";
   var UI = {
-    work: "Work", about: "About", contact: "Contact",
-    back: "← All work", next: "Next project →"
+    project: "Project", journalism: "Journalism", about: "About", contact: "Contact"
   };
 
   var main    = document.getElementById("main");
@@ -421,13 +466,28 @@ const SERIES = [
     navName.textContent = SITE.name;
     footTxt.textContent = SITE.footer;
     navIg.href = SITE.instagram;
-    ["work", "about", "contact"].forEach(function (k) {
+    ["project", "journalism", "about", "contact"].forEach(function (k) {
       document.querySelector('[data-nav="' + k + '"]').textContent = UI[k];
     });
   }
 
   /* ---------- pages ---------- */
   var MAX_SLIDES = 6;   /* how many photos each cover rotates through */
+
+  /* the two collections the site shows; both use identical page templates */
+  var COLS = { project: SERIES, journalism: JOURNALISM };
+  var WORD = {
+    project:    { one: "project", many: "projects" },
+    journalism: { one: "story",   many: "stories"  }
+  };
+
+  function findStory(id) {                 /* the lightbox needs either list */
+    for (var k in COLS) {
+      var hit = COLS[k].filter(function (s) { return s.id === id; })[0];
+      if (hit) return hit;
+    }
+    return null;
+  }
 
   /* one slide of a cover carousel — falls back to a labelled placeholder */
   function slide(file, alt, first) {
@@ -437,8 +497,8 @@ const SERIES = [
            'data-file="' + esc(file) + '" onerror="imgFail(this)">';
   }
 
-  function pageWork() {
-    return '<div class="work">' + SERIES.map(function (s) {
+  function pageWork(base) {
+    return '<div class="work">' + COLS[base].map(function (s) {
       var files = (s.photos || []).map(norm).map(function (p) { return p.file; });
       if (s.cover) {                                   /* cover leads, no duplicate */
         files = [s.cover].concat(files.filter(function (f) { return f !== s.cover; }));
@@ -455,13 +515,13 @@ const SERIES = [
       /* side note: the project's own `note`, else the first sentence of `text` */
       var note = s.note || ((s.text || "").split(". ")[0] || "");
 
-      return '<a class="work-item" href="#/work/' + esc(s.id) + '">' +
+      return '<a class="work-item" href="#/' + base + '/' + esc(s.id) + '">' +
                '<div class="work-figure">' + slides + dots + '</div>' +
                '<div class="work-cap">' +
                  '<h2>' + esc(s.title) + '</h2>' +
                  '<span class="meta">' + esc(s.place) + ' &nbsp;\u00b7&nbsp; ' + esc(s.year || "") + '</span>' +
                  (note ? '<p class="note">' + esc(note) + '</p>' : "") +
-                 '<span class="go">View project \u2192</span>' +
+                 '<span class="go">View ' + WORD[base].one + ' \u2192</span>' +
                '</div>' +
              '</a>';
     }).join("") + '</div>';
@@ -473,7 +533,7 @@ const SERIES = [
 
   function startCarousels() {
     stopCarousels();
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     Array.prototype.forEach.call(document.querySelectorAll(".work-figure"), function (fig, n) {
       if (fig.querySelectorAll(".slide").length < 2) return;
@@ -504,11 +564,12 @@ const SERIES = [
     { n: 1, c: "r-wide" }
   ];
 
-  function pageProject(id) {
-    var i = SERIES.findIndex(function (s) { return s.id === id; });
-    if (i < 0) return pageWork();
-    var s = SERIES[i];
-    var next = SERIES[(i + 1) % SERIES.length];
+  function pageProject(base, id) {
+    var list = COLS[base];
+    var i = list.findIndex(function (s) { return s.id === id; });
+    if (i < 0) return pageWork(base);
+    var s = list[i];
+    var next = list[(i + 1) % list.length];
     var photos = (s.photos || []).map(norm);
 
     var rows = "", k = 0, p = 0, idx = 0;
@@ -534,8 +595,8 @@ const SERIES = [
       '</header>' +
       '<div class="rows">' + rows + '</div>' +
       '<div class="proj-foot">' +
-        '<a class="meta" href="#/work">' + esc(UI.back) + '</a>' +
-        '<a class="meta" href="#/work/' + esc(next.id) + '">' + esc(UI.next) + '</a>' +
+        '<a class="meta" href="#/' + base + '">← All ' + WORD[base].many + '</a>' +
+        '<a class="meta" href="#/' + base + '/' + esc(next.id) + '">Next ' + WORD[base].one + ' →</a>' +
       '</div>' +
     '</article>';
   }
@@ -567,19 +628,23 @@ const SERIES = [
   function route() {
     var h = location.hash.replace(/^#\/?/, "");
     var parts = h.split("/").filter(Boolean);
-    var page = parts[0] || "work";
+    var page = parts[0] || "project";
+    if (page === "work") page = "project";          /* old links keep working */
 
     stopCarousels();
     if (page === "about")        main.innerHTML = pageAbout();
     else if (page === "contact") main.innerHTML = pageContact();
-    else if (page === "work" && parts[1]) main.innerHTML = pageProject(parts[1]);
-    else { page = "work"; main.innerHTML = pageWork(); }
+    else if (COLS[page] && parts[1]) main.innerHTML = pageProject(page, parts[1]);
+    else {
+      if (!COLS[page]) page = "project";
+      main.innerHTML = pageWork(page);
+    }
 
-    ["work", "about", "contact"].forEach(function (k) {
+    ["project", "journalism", "about", "contact"].forEach(function (k) {
       var a = document.querySelector('[data-nav="' + k + '"]');
       if (k === page) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
-    if (page === "work" && !parts[1]) startCarousels();
+    if (COLS[page] && !parts[1]) startCarousels();
     links.classList.remove("open");
     burger.setAttribute("aria-expanded", "false");
     window.scrollTo(0, 0);
@@ -592,7 +657,7 @@ const SERIES = [
       cur = 0, list = [];
 
   function openLb(project, i) {
-    var s = SERIES.find(function (x) { return x.id === project; });
+    var s = findStory(project);
     if (!s) return;
     list = s.photos.map(norm); cur = i; show();
     lb.hidden = false; document.body.style.overflow = "hidden";
